@@ -1187,3 +1187,4 @@ Received Import Request.
 Start importing Assets/Walls/Wall.prefab using Guid(04b64dcd729daf9488ac225d9f4b6d28) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f9d185e491eed76b151c29c0eb5b7a25') in 0.088098 seconds
   Import took 0.092672 seconds .
 
+AssetImportWorkerClient::OnTransportError - code=2 error=End of file

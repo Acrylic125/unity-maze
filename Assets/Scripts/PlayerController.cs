@@ -23,6 +23,10 @@ public class PlayerController : MonoBehaviour
             maskDown |= 0x04;
         if (Input.GetKey(KeyCode.D))
             maskDown |= 0x08;
+        if (Input.GetKey(KeyCode.Space))
+            maskDown |= 0x10;
+        if (Input.GetKey(KeyCode.LeftShift))
+            maskDown |= 0x20;
         return maskDown;
     }
 
@@ -48,6 +52,15 @@ public class PlayerController : MonoBehaviour
                     float f = (direction2D * speed * Time.deltaTime);
                     movement.x += perpAxis.x * f;
                     movement.z += perpAxis.z * f;
+                }
+            }
+            if ((maskDown & 0x30) != 0x30) {
+                // Normalized, multiply by rotational matrix (AC 90)
+                Vector3 perpAxis = new Vector3(-xzFacing.z, 0, xzFacing.x);
+                if ((maskDown & 0x10) == 0x10 || (maskDown & 0x20) == 0x20) {
+                    direction2D = ((maskDown & 0x10) == 0x10) ? 1f : -1f;
+                    float f = (direction2D * speed * Time.deltaTime);
+                    movement.y += f;
                 }
             }
             transform.position = transform.position + movement;

@@ -22,14 +22,6 @@ public class Maze : MonoBehaviour, IMaze
         return zCells;
     }
 
-    public float GetXWallFactor() {
-        return bb.size.x / xCells;
-    }
-
-    public float GetZWallFactor() {
-        return bb.size.z / zCells;
-    }
-
     public float GetCellXSize() {
         return bb.size.x / xCells;
     }
@@ -49,9 +41,7 @@ public class Maze : MonoBehaviour, IMaze
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log(wallCloneable);
         this.mazeMap = new MazeMap(wallCloneable, this);
-        Debug.Log(GetXWallFactor() + " " + GetZWallFactor());
     }
 
     // Update is called once per frame

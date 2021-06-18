@@ -4,10 +4,27 @@ using UnityEngine;
 namespace MazePackage
 {
 
-    public struct MazeCell {
-        public GameObject posXWall, posZWall;
+    public struct MazeWall {
 
-        public MazeCell(GameObject posXWall, GameObject posZWall)
+        public GameObject wall;
+        public bool border;
+        
+        public MazeWall(GameObject wall, bool border) {
+            this.wall = wall;
+            this.border = border;
+        }
+
+        public void Destroy() {
+            if (wall != null)
+                Object.Destroy(wall);
+        }
+
+    }
+
+    public struct MazeCell {
+        public MazeWall? posXWall, posZWall;
+
+        public MazeCell(MazeWall? posXWall, MazeWall? posZWall)
         {
             this.posXWall = posXWall;
             this.posZWall = posZWall;
@@ -21,20 +38,11 @@ namespace MazePackage
             return posZWall != null;
         }
 
-        public void ClearXWall() {
-            Debug.Log("Destroyed " + posXWall);
-            if (posXWall != null)
-                Object.Destroy(posXWall);
-        }
-
-        public void ClearZWall() {
-            if (posZWall != null)
-                Object.Destroy(posZWall);
-        }
-
         public void ClearAllWalls() {
-            this.ClearXWall();
-            this.ClearZWall();
+            if (posXWall != null)
+                (posXWall!).Value.Destroy();
+            if (posZWall != null)
+                (posZWall!).Value.Destroy();
         }
     }
 
@@ -52,13 +60,23 @@ namespace MazePackage
 
         public void ReMap() {
             int xCells = maze.GetXCells(), zCells = maze.GetZCells();
-            this.cells = new MazeCell[xCells, zCells];
-            for (int x = 0; x < xCells; x++) {
-                for (int z = 0; z < zCells; z++) {
+            this.cells = new MazeCell[xCells + 1, zCells + 1];
+            for (int x = 1; x < xCells; x++) {
+                for (int z = 1; z < zCells; z++) {
                     AddCell(x, z);
                 }
             }
-            (GetMazeCellByIndex(4, 4)!).Value.ClearXWall();
+            // Remap borders
+            for (int x = 0; x < xCells; x++) {
+                AddCell(x, 0, null, WallArgs.Border);
+                AddCell(x, 0, WallArgs.Normal, null);
+                AddCell(x, zCells, null, WallArgs.Border);
+            }
+            for (int z = 0; z < xCells; z++) {
+                AddCell(0, z, WallArgs.Border, null);
+                AddCell(0, z, null, WallArgs.Normal);
+                AddCell(xCells, z, WallArgs.Border, null);
+            }
         }
 
         public GameObject ReplicateXWall(Vector3 loc, Quaternion rotation) {
@@ -75,16 +93,33 @@ namespace MazePackage
        }
 
         public void AddCell(int x, int z) {
-            this.AddCell(x, z, true, true);
+            this.AddCell(x, z, WallArgs.Normal, WallArgs.Normal);
         }
 
-        public void AddCell(int x, int z, bool haveXWall, bool haveZWall) {
+        public struct WallArgs {
+            
+            public static readonly WallArgs Border = new WallArgs(true);
+            public static readonly WallArgs Normal = new WallArgs(false);
+            
+            public readonly bool border;
+
+            WallArgs(bool border) {
+                this.border = border;
+            }
+
+        }
+
+        public void AddCell(int x, int z, WallArgs? wargX, WallArgs? wargZ) {
             if (validateXZ(x, z)) {
                 Vector3 min = maze.GetBorder().min;
                 float nX = Mathf.FloorToInt((x + min.x) * maze.GetCellXSize()),
-                      nZ = Mathf.FloorToInt((z + min.z) * maze.GetCellZSize());
-                Vector3 loc = new Vector3(nX, maze.GetStarting().y, nZ);
-                MazeCell mazeWall = new MazeCell((haveXWall) ? ReplicateXWall(loc, new Quaternion()) : null, (haveZWall) ? ReplicateZWall(loc, Quaternion.Euler(0, 90, 0)) : null);
+                      nZ = Mathf.FloorToInt((z + min.z) * maze.GetCellZSize()),
+                      y = maze.GetStarting().y;
+                Vector3 loc = new Vector3(nX, y, nZ + 0.5f),
+                        loc2 = new Vector3(nX + 0.5f, y, nZ);
+                MazeWall? wallX = (wargX != null) ? new MazeWall(ReplicateXWall(loc, new Quaternion()), wargX.Value.border) : (MazeWall?) null,
+                          wallZ = (wargZ != null) ? new MazeWall(ReplicateZWall(loc2, Quaternion.Euler(0, 90, 0)), wargZ.Value.border) : (MazeWall?) null;
+                MazeCell mazeWall = new MazeCell(wallX, wallZ);
                 cells.SetValue(mazeWall, x, z);
             } else {
                 Debug.Log("Failed at index " + x + ", " + z);
@@ -113,6 +148,7 @@ namespace MazePackage
             return x >= 0 && z >= 0 && s1 > x && s2 > z;
         }
 
+
     }
 
     public interface IMaze {
@@ -121,10 +157,6 @@ namespace MazePackage
         int GetXCells();
         
         int GetZCells();
-
-        float GetXWallFactor();
-
-        float GetZWallFactor();
 
         float GetCellXSize();
 

@@ -49,6 +49,7 @@ public class Maze : MonoBehaviour, IMaze
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log(wallCloneable);
         this.mazeMap = new MazeMap(wallCloneable, this);
         Debug.Log(GetXWallFactor() + " " + GetZWallFactor());
     }

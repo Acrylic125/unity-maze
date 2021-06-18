@@ -69,9 +69,7 @@ namespace MazePackage
 
         public void UpdateWallType(GameObject wallObject) {
             posXWall = Object.Instantiate(wallObject);
-            Quaternion rotationZ = wallObject.transform.rotation;
-            rotationZ.y += 90;
-            posXWall = Object.Instantiate(wallObject, wallObject.transform.position, rotationZ);
+            posZWall = Object.Instantiate(wallObject);
        }
 
         public void AddCell(int x, int z) {
@@ -81,10 +79,10 @@ namespace MazePackage
         public void AddCell(int x, int z, bool haveXWall, bool haveZWall) {
             if (validateXZ(x, z)) {
                 Vector3 min = maze.GetBorder().min;
-                float nX = Mathf.FloorToInt((x - min.x) * maze.GetCellXSize()),
-                      nZ = Mathf.FloorToInt((z - min.z) * maze.GetCellZSize());
+                float nX = Mathf.FloorToInt((x + min.x) * maze.GetCellXSize()),
+                      nZ = Mathf.FloorToInt((z + min.z) * maze.GetCellZSize());
                 Vector3 loc = new Vector3(nX, maze.GetStarting().y, nZ);
-                MazeCell mazeWall = new MazeCell((haveXWall) ? ReplicateXWall(loc, new Quaternion()) : null, (haveZWall) ? ReplicateZWall(loc, new Quaternion()) : null);
+                MazeCell mazeWall = new MazeCell((haveXWall) ? ReplicateXWall(loc, new Quaternion()) : null, (haveZWall) ? ReplicateZWall(loc, Quaternion.Euler(0, 90, 0)) : null);
                 cells.SetValue(mazeWall, x, z);
             } else {
                 Debug.Log("Failed at index " + x + ", " + z);

@@ -4,15 +4,12 @@ using UnityEngine;
 
 public class CameraFollower : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+
+    public GameObject follow;
 
     // Update is called once per frame
     void Update()
     {
-        
+        transform.position = follow.transform.position;
     }
 }

@@ -7,11 +7,12 @@ namespace MazePackage
     public struct MazeWall {
 
         public GameObject wall;
-        public bool border;
+        public bool blocked, border;
         
-        public MazeWall(GameObject wall, bool border) {
+        public MazeWall(GameObject wall, MazeMap.WallArgs args) {
             this.wall = wall;
-            this.border = border;
+            this.blocked = args.blocked;
+            this.border = args.border;
         }
 
         public void Destroy() {
@@ -22,10 +23,13 @@ namespace MazePackage
     }
 
     public struct MazeCell {
+        public readonly int x, z;
         public MazeWall? posXWall, posZWall;
 
-        public MazeCell(MazeWall? posXWall, MazeWall? posZWall)
+        public MazeCell(int x, int z, MazeWall? posXWall, MazeWall? posZWall)
         {
+            this.x = x;
+            this.z = z;
             this.posXWall = posXWall;
             this.posZWall = posZWall;
         }
@@ -98,12 +102,13 @@ namespace MazePackage
 
         public struct WallArgs {
             
-            public static readonly WallArgs Border = new WallArgs(true);
-            public static readonly WallArgs Normal = new WallArgs(false);
+            public static readonly WallArgs Border = new WallArgs(true, true);
+            public static readonly WallArgs Normal = new WallArgs(false, false);
             
-            public readonly bool border;
+            public readonly bool blocked, border;
 
-            WallArgs(bool border) {
+            WallArgs(bool blocked, bool border) {
+                this.blocked = blocked;
                 this.border = border;
             }
 
@@ -117,9 +122,9 @@ namespace MazePackage
                       y = maze.GetStarting().y;
                 Vector3 loc = new Vector3(nX, y, nZ + 0.5f),
                         loc2 = new Vector3(nX + 0.5f, y, nZ);
-                MazeWall? wallX = (wargX != null) ? new MazeWall(ReplicateXWall(loc, new Quaternion()), wargX.Value.border) : (MazeWall?) null,
-                          wallZ = (wargZ != null) ? new MazeWall(ReplicateZWall(loc2, Quaternion.Euler(0, 90, 0)), wargZ.Value.border) : (MazeWall?) null;
-                MazeCell mazeWall = new MazeCell(wallX, wallZ);
+                MazeWall? wallX = (wargX != null) ? new MazeWall(ReplicateXWall(loc, new Quaternion()), wargX.Value) : (MazeWall?) null,
+                          wallZ = (wargZ != null) ? new MazeWall(ReplicateZWall(loc2, Quaternion.Euler(0, 90, 0)), wargZ.Value) : (MazeWall?) null;
+                MazeCell mazeWall = new MazeCell(x, z, wallX, wallZ);
                 cells.SetValue(mazeWall, x, z);
             } else {
                 Debug.Log("Failed at index " + x + ", " + z);

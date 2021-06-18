@@ -21,19 +21,20 @@ namespace MazePackage
             return posZWall != null;
         }
 
-        public void clearXWall() {
+        public void ClearXWall() {
+            Debug.Log("Destroyed " + posXWall);
             if (posXWall != null)
                 Object.Destroy(posXWall);
         }
 
-        public void clearZWall() {
+        public void ClearZWall() {
             if (posZWall != null)
                 Object.Destroy(posZWall);
         }
 
-        public void clearAllWalls() {
-            this.clearXWall();
-            this.clearZWall();
+        public void ClearAllWalls() {
+            this.ClearXWall();
+            this.ClearZWall();
         }
     }
 
@@ -57,6 +58,7 @@ namespace MazePackage
                     AddCell(x, z);
                 }
             }
+            (GetMazeCellByIndex(4, 4)!).Value.ClearXWall();
         }
 
         public GameObject ReplicateXWall(Vector3 loc, Quaternion rotation) {
@@ -92,7 +94,7 @@ namespace MazePackage
         public void RemoveCell(int x, int z) {
             MazeCell? cell = GetMazeCellByIndex(x, z);
             if (cell != null) {
-                (cell!).Value.clearAllWalls();
+                (cell!).Value.ClearAllWalls();
                 cells.SetValue(null, x, z);
             }
         }

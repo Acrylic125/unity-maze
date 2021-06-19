@@ -13,6 +13,10 @@ namespace MazePackage
             this.wall = wall;
             this.blocked = args.blocked;
             this.border = args.border;
+            if (border) {
+                foreach(var renderer in wall.GetComponentsInChildren<Renderer>(true)) 
+                    renderer.material.color = new Color(44, 44, 44);
+            }
         }
 
         public void Destroy() {
@@ -71,14 +75,15 @@ namespace MazePackage
                 }
             }
             // Remap borders
-            for (int x = 0; x < xCells; x++) {
-                AddCell(x, 0, null, WallArgs.Border);
-                AddCell(x, 0, WallArgs.Normal, null);
+            AddCell(0, 0, WallArgs.Border, WallArgs.Border);
+            AddCell(xCells, 0, WallArgs.Border, null);
+            AddCell(0, zCells, null, WallArgs.Border);
+            for (int x = 1; x < xCells; x++) {
+                AddCell(x, 0, WallArgs.Normal, WallArgs.Border);
                 AddCell(x, zCells, null, WallArgs.Border);
             }
-            for (int z = 0; z < xCells; z++) {
-                AddCell(0, z, WallArgs.Border, null);
-                AddCell(0, z, null, WallArgs.Normal);
+            for (int z = 1; z < zCells; z++) {
+                AddCell(0, z, WallArgs.Border, WallArgs.Normal);
                 AddCell(xCells, z, WallArgs.Border, null);
             }
         }
